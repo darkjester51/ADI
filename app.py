@@ -4,9 +4,13 @@ import datetime
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+import csv
 from adi_core import run_adi_daily, HISTORICAL_BASELINES
 
 LOG_FILE = "data/adi_log.csv"
+
+# Ensure data directory exists
+os.makedirs("data", exist_ok=True)
 
 # Page configuration
 st.set_page_config(page_title="Authoritarian Drift Index (ADI) v4.6.1", layout="centered")
@@ -29,12 +33,9 @@ st.markdown(
             </div>
         </a>
     </div>
-    """ ,
+    """,
     unsafe_allow_html=True
 )
-
-
-
 
 # =======================
 # About ADI Section
@@ -58,6 +59,7 @@ st.markdown(
     **Disclaimer:** ADI is for educational use only. It is an independent project and is not affiliated with any government, organization, or advocacy group.
     """
 )
+
 # Shoe Level Gauge
 def shoe_meter(level):
     colors = {1: "green", 2: "limegreen", 3: "gold", 4: "orange", 5: "red"}
@@ -81,6 +83,16 @@ def plot_static_historical_chart(current_adi):
     plt.legend()
     st.pyplot(plt)
 
+# Logging function
+def log_adi_score(score):
+    os.makedirs("data", exist_ok=True)
+    log_exists = os.path.exists(LOG_FILE)
+    with open(LOG_FILE, "a", newline="") as f:
+        writer = csv.writer(f)
+        if not log_exists:
+            writer.writerow(["Date", "ADI Score"])
+        writer.writerow([datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), score])
+
 # Refresh Button
 if st.button("🔄 Refresh Now"):
     with st.spinner("Pulling most current data..."):
@@ -92,6 +104,9 @@ if st.button("🔄 Refresh Now"):
         st.subheader("Historical Context:")
         for line in historical_context:
             st.write("- " + line)
+
+        # Save to log
+        log_adi_score(adi_score)
 
         # Display static historical chart
         st.subheader("📊 Historical Reference Chart")
