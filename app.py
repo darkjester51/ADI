@@ -114,16 +114,20 @@ if st.button("🔄 Refresh Now"):
 
 # U.S. ADI Trend Chart
 if os.path.exists(LOG_FILE):
-    st.subheader("📈 U.S. ADI Trend (Last 30 Days)")
-    df_log = pd.read_csv(LOG_FILE)
-    df_log["Date"] = pd.to_datetime(df_log["Date"])
-    df_log = df_log.sort_values("Date")
+    try:
+        df_log = pd.read_csv(LOG_FILE)
+        if "Date" in df_log.columns and "ADI Score" in df_log.columns:
+            df_log["Date"] = pd.to_datetime(df_log["Date"], errors='coerce')
+            df_log = df_log.dropna(subset=["Date"])
+            df_log = df_log.sort_values("Date")
 
-    # Filter for last 30 days
-    thirty_days_ago = datetime.datetime.now() - datetime.timedelta(days=30)
-    df_30 = df_log[df_log["Date"] >= thirty_days_ago]
-
-    if len(df_30) > 1:
-        st.line_chart(df_30.set_index("Date")["ADI Score"])
-    else:
-        st.warning("Not enough data for a 30-day trend. Wait for more daily updates.")
+            # Full range: 5 years or entire dataset
+            if len(df_log) > 1:
+                st.subheader("📈 U.S. ADI Trend (5-Year View)")
+                st.line_chart(df_log.set_index("Date")["ADI Score"])
+            else:
+                st.warning("Not enough data for trend visualization.")
+        else:
+            st.warning("CSV file missing required columns: Date and ADI Score.")
+    except Exception as e:
+        st.error(f"Error loading ADI log: {e}")
