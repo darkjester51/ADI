@@ -12,19 +12,52 @@ LOG_FILE = "data/adi_log.csv"
 st.set_page_config(page_title="Authoritarian Drift Index (ADI) v4.6.1", layout="centered")
 st.title("Authoritarian Drift Index (ADI) Dashboard v4.6.1")
 st.subheader("Time to Leave Gauge with Historical Context")
+
 st.markdown(
     """
     <div style='text-align: center; margin-bottom: 20px;'>
-        <a href='https://buymeacoffee.com/yourname' target='_blank'>
-            <button style='background-color:#ff9800; color:white; padding:10px 20px; border:none; border-radius:5px; font-size:16px; cursor:pointer;'>
-                ☕ Support This Project
-            </button>
+        <b>Support ADIS</b><br>
+        Your support helps keep ADIS live and improving.<br><br>
+        <a href='https://cash.app/$Stoller139' target='_blank' style='text-decoration:none;'>
+            <div style='display:inline-block; background-color:#28a745; color:white; padding:10px 20px; border-radius:5px; font-size:16px; margin-right:10px;'>
+                💵 Donate via CashApp
+            </div>
+        </a>
+        <a href='https://venmo.com/ZetaCronSolutions' target='_blank' style='text-decoration:none;'>
+            <div style='display:inline-block; background-color:#3D95CE; color:white; padding:10px 20px; border-radius:5px; font-size:16px;'>
+                💳 Donate via Venmo
+            </div>
         </a>
     </div>
-    """,
+    """ ,
     unsafe_allow_html=True
 )
 
+
+
+
+# =======================
+# About ADI Section
+# =======================
+st.markdown(
+    """
+    ### About the Authoritarian Drift Index (ADI)
+
+    The **Authoritarian Drift Index (ADI)** is a data-driven, educational tool designed to track the state of democratic health and authoritarian trends in the United States. 
+    It is based on a **mathematical scoring algorithm** inspired by **Freedom House's Global Freedom Index**, focusing on civil liberties, rule of law, free press, and political rights.
+
+    **ADI is not propaganda or a political endorsement.** It does not aim to influence voting or policy decisions but provides an **objective, historical context** for current events.
+
+    **Shoe Level System:**  
+    - **👟 Level 1 – Stable (0–29):** Healthy democracy, minimal authoritarian drift.  
+    - **👟👟 Level 2 – Caution (30–49):** Early warning signs of instability.  
+    - **👟👟👟 Level 3 – Warning (50–69):** Authoritarian trends are increasing.  
+    - **👟👟👟👟 Level 4 – Critical (70–84):** Significant risk to democratic institutions.  
+    - **👟👟👟👟👟 Level 5 – Emergency (85–100):** Conditions resemble authoritarian regimes.
+
+    **Disclaimer:** ADI is for educational use only. It is an independent project and is not affiliated with any government, organization, or advocacy group.
+    """
+)
 # Shoe Level Gauge
 def shoe_meter(level):
     colors = {1: "green", 2: "limegreen", 3: "gold", 4: "orange", 5: "red"}
