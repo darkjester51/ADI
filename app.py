@@ -11,7 +11,7 @@ LOG_FILE = "data/adi_log.csv"
 # Page configuration
 st.set_page_config(page_title="Authoritarian Drift Index (ADI) v4.6.1", layout="centered")
 st.title("Authoritarian Drift Index (ADI) Dashboard v4.6.1")
-st.subheader("Time to Leave Gauge with Historical Context")
+st.subheader("Real Time Democracy Gauge with Historical Context")
 
 st.markdown(
     """
