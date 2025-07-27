@@ -17,7 +17,7 @@ st.markdown(
     """
     <div style='text-align: center; margin-bottom: 20px;'>
         <b>Support ADIS</b><br>
-        Your support helps keep ADIS live and improving.<br><br>
+        Your support helps keep ADI live and improving.<br><br>
         <a href='https://cash.app/$Stoller139' target='_blank' style='text-decoration:none;'>
             <div style='display:inline-block; background-color:#28a745; color:white; padding:10px 20px; border-radius:5px; font-size:16px; margin-right:10px;'>
                 💵 Donate via CashApp
