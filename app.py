@@ -130,3 +130,13 @@ if os.path.exists(LOG_FILE):
                 elif date_span >= 5:
                     chart_title = "📈 U.S. ADI Trend (5-Year View)"
                 else:
+                    chart_title = "📈 U.S. ADI Trend (Recent View)"
+
+                st.subheader(chart_title)
+                st.line_chart(df_log.set_index("Date")["ADI Score"])
+            else:
+                st.warning("Not enough data for trend visualization.")
+        else:
+            st.warning("CSV file missing required columns: Date and ADI Score.")
+    except Exception as e:
+        st.error(f"Error loading ADI log: {e}")
