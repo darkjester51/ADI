@@ -117,17 +117,16 @@ if os.path.exists(LOG_FILE):
     try:
         df_log = pd.read_csv(LOG_FILE)
         if "Date" in df_log.columns and "ADI Score" in df_log.columns:
+            # Clean and parse Date column
             df_log["Date"] = pd.to_datetime(df_log["Date"], errors='coerce')
             df_log = df_log.dropna(subset=["Date"])
             df_log = df_log.sort_values("Date")
 
-            # Full range: 5 years or entire dataset
             if len(df_log) > 1:
-                st.subheader("📈 U.S. ADI Trend (5-Year View)")
-                st.line_chart(df_log.set_index("Date")["ADI Score"])
-            else:
-                st.warning("Not enough data for trend visualization.")
-        else:
-            st.warning("CSV file missing required columns: Date and ADI Score.")
-    except Exception as e:
-        st.error(f"Error loading ADI log: {e}")
+                # Determine the time span in years
+                date_span = (df_log["Date"].max() - df_log["Date"].min()).days / 365.25
+                if date_span >= 10:
+                    chart_title = "📈 U.S. ADI Trend (20-Year View)"
+                elif date_span >= 5:
+                    chart_title = "📈 U.S. ADI Trend (5-Year View)"
+                else:
