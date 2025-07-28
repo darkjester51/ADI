@@ -126,7 +126,7 @@ if os.path.exists(LOG_FILE):
                 # Determine the time span in years
                 date_span = (df_log["Date"].max() - df_log["Date"].min()).days / 365.25
                 if date_span >= 10:
-                    chart_title = "📈 U.S. ADI Trend (20-Year View)"
+                    chart_title = "📈 U.S. ADI Trend (All Time View)"
                 elif date_span >= 5:
                     chart_title = "📈 U.S. ADI Trend (5-Year View)"
                 else:
