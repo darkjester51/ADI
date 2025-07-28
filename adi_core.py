@@ -22,7 +22,7 @@ CATEGORIES = {
 }
 
 # -------------------------------
-# Severity Mapping
+# Severity Mapping (Expanded)
 # -------------------------------
 SEVERITY_MAP = {
     "ending crime and disorder": ("civil_rights", 10),
@@ -43,7 +43,7 @@ SEVERITY_MAP = {
 DECAY_FACTOR = 0.95
 
 # -------------------------------
-# Historical Baselines
+# Historical Baselines (for comparison only)
 # -------------------------------
 HISTORICAL_BASELINES = {
     "Weimar Germany (1929-1933)": [20, 25, 30, 40, 55, 70, 85],
@@ -98,10 +98,8 @@ def calculate_adi(scores):
     return round(sum(scores[cat] * 10 * CATEGORIES[cat] for cat in CATEGORIES), 2)
 
 def scale_to_historical(raw_score):
-    if raw_score <= 0:
-        return 0.0
-    avg_end = np.mean([values[-1] for values in HISTORICAL_BASELINES.values()])
-    return round((raw_score / 30) * avg_end, 2)
+    # Cap ADI between 0–100
+    return round(min(raw_score, 100), 2)
 
 def get_shoe_level(adi_score):
     if adi_score < 30:
@@ -127,7 +125,7 @@ def forecast_trend(df_log, months=6):
     y = df_log["ADI Score"].values
     slope = (y[-1] - y[0]) / (x[-1] - x[0] + 1e-6)
     forecast_days = int(months * 30)
-    future_score = y[-1] + slope * forecast_days
+    future_score = min(y[-1] + slope * forecast_days, 100)
     level, status = get_shoe_level(future_score)
     return f"If current trend continues (+{slope:.2f} points/day), projected ADI in {months} months: {future_score:.1f} (Shoe Level {level} - {status})."
 
