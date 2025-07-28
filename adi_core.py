@@ -115,6 +115,19 @@ def get_shoe_level(adi_score):
 # -------------------------------
 # Main Daily Run with Decay
 # -------------------------------
+def forecast_trend(df_log, months=6):
+    if len(df_log) < 3:
+        return "Not enough data for forecast."
+    df_log = df_log.sort_values("Date")
+    df_log["day_num"] = np.arange(len(df_log))
+    x = df_log["day_num"].values
+    y = df_log["ADI Score"].values
+    slope = (y[-1] - y[0]) / (x[-1] - x[0] + 1e-6)
+    forecast_days = int(months * 30)
+    future_score = y[-1] + slope * forecast_days
+    level, status = get_shoe_level(future_score)
+    return f"If current trend continues (+{slope:.2f} points/day), projected ADI in {months} months: {future_score:.1f} (Shoe Level {level} - {status})."
+
 def run_adi_daily():
     base_dir = os.path.dirname(os.path.abspath(__file__))
     data_path = os.path.join(base_dir, "data")
