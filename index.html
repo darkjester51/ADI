@@ -9,7 +9,7 @@
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
       background-color: #f7f8fa;
-      color: #333;
+      color: #fff; /* All text is white */
       line-height: 1.6;
     }
     header {
@@ -21,41 +21,50 @@
     header h1 {
       font-size: 2.5rem;
       margin-bottom: 10px;
+      color: #fff;
     }
     header p {
       font-size: 1.2rem;
       max-width: 700px;
       margin: 0 auto;
+      color: #fff;
     }
     nav {
       text-align: center;
       padding: 15px;
-      background: #ffffff;
-      border-bottom: 1px solid #ddd;
+      background: #222;
+      border-bottom: 1px solid #444;
     }
     nav a {
       margin: 0 15px;
       text-decoration: none;
-      color: #333;
+      color: #fff;
       font-weight: bold;
     }
     section {
       padding: 50px 20px;
       max-width: 1100px;
       margin: auto;
+      background-color: #1a1a1a;
+    }
+    section h2 {
+      color: #fff;
+    }
+    section p, section ul, section li {
+      color: #ddd;
     }
     .cta {
       text-align: center;
       margin: 30px 0;
     }
     .cta a {
-      background: #1a2a6c;
-      color: #fff;
+      background: #fff;
+      color: #1a2a6c;
       padding: 12px 25px;
       border-radius: 5px;
       text-decoration: none;
       font-size: 1rem;
-      transition: background 0.3s ease;
+      transition: background 0.3s ease, color 0.3s ease;
     }
     .cta a:hover {
       background: #fdbb2d;
@@ -69,7 +78,7 @@
       font-size: 0.9rem;
     }
     .highlight {
-      color: #b21f1f;
+      color: #fff; /* Make highlight text white for readability */
       font-weight: bold;
     }
   </style>
@@ -122,7 +131,7 @@
 
   <section id="contact">
     <h2>Contact</h2>
-    <p>For demos, licensing, or partnership inquiries, please reach out via <a href="mailto:info@zetacronsolutions.com">info@zetacronsolutions.com</a>.</p>
+    <p>For demos, licensing, or partnership inquiries, please reach out via <a href="mailto:info@zetacronsolutions.com" style="color:#fff; text-decoration:underline;">info@zetacronsolutions.com</a>.</p>
   </section>
 
   <footer>
