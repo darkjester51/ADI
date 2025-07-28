@@ -6,7 +6,9 @@ import os
 import numpy as np
 from bs4 import BeautifulSoup
 
-# Categories and their weights
+# -------------------------------
+# Categories and Weights
+# -------------------------------
 CATEGORIES = {
     "judicial": 0.15,
     "civil_service": 0.15,
@@ -19,7 +21,9 @@ CATEGORIES = {
     "elections": 0.10
 }
 
-# Expanded Severity mapping
+# -------------------------------
+# Severity Mapping
+# -------------------------------
 SEVERITY_MAP = {
     "ending crime and disorder": ("civil_rights", 10),
     "export of the american ai technology stack": ("foreign_policy", 5),
@@ -38,7 +42,9 @@ SEVERITY_MAP = {
 
 DECAY_FACTOR = 0.95
 
-# Historical baselines
+# -------------------------------
+# Historical Baselines
+# -------------------------------
 HISTORICAL_BASELINES = {
     "Weimar Germany (1929-1933)": [20, 25, 30, 40, 55, 70, 85],
     "Chile (1970-1973)": [15, 20, 28, 40, 60, 80],
@@ -66,22 +72,19 @@ def scrape_whitehouse_actions():
 
 def fetch_us_politics_news():
     try:
-        # Reuters first
         feed = feedparser.parse("https://feeds.reuters.com/Reuters/PoliticsNews")
         if feed.entries:
             return [(entry.title.lower(), entry.link) for entry in feed.entries[:10]]
-        # Fallback to BBC
         feed = feedparser.parse("http://feeds.bbci.co.uk/news/world/us_and_canada/rss.xml")
         if feed.entries:
             return [(entry.title.lower(), entry.link) for entry in feed.entries[:10]]
-        # AP News fallback
         feed = feedparser.parse("https://apnews.com/hub/ap-top-news?format=atom")
         return [(entry.title.lower(), entry.link) for entry in feed.entries[:10]]
     except Exception:
         return [("No political headlines found", "")]
 
 # -------------------------------
-# Scoring & ADI Calculations
+# Scoring Functions
 # -------------------------------
 def score_events(events):
     scores = {cat: 0 for cat in CATEGORIES}
@@ -113,7 +116,7 @@ def get_shoe_level(adi_score):
         return 5, "Emergency"
 
 # -------------------------------
-# Main Daily Run with Decay
+# Forecasting and History
 # -------------------------------
 def forecast_trend(df_log, months=6):
     if len(df_log) < 3:
@@ -128,6 +131,41 @@ def forecast_trend(df_log, months=6):
     level, status = get_shoe_level(future_score)
     return f"If current trend continues (+{slope:.2f} points/day), projected ADI in {months} months: {future_score:.1f} (Shoe Level {level} - {status})."
 
+def historical_comparison(current_adi):
+    results = []
+    for regime, values in HISTORICAL_BASELINES.items():
+        closest = min(values, key=lambda x: abs(x - current_adi))
+        results.append(f"{regime} (closest drift point: {closest})")
+    return results
+
+# -------------------------------
+# Summary Formatting
+# -------------------------------
+def format_summary(date, raw_adi, scaled_adi, shoe_level, shoe_status, actions, headlines):
+    formatted = [
+        f"**Date:** {date}",
+        f"**Raw ADI Score:** {raw_adi}",
+        f"**Scaled ADI Score:** {scaled_adi} (Shoe Level {shoe_level} – {shoe_status})",
+        "",
+        "**Top White House Actions:**",
+    ]
+    if actions:
+        formatted.extend([f"- [{a[0].capitalize()}]({a[1]})" if a[1] else f"- {a[0].capitalize()}" for a in actions])
+    else:
+        formatted.append("- None found")
+
+    formatted.append("")
+    formatted.append("**Top Headlines:**")
+    if headlines:
+        formatted.extend([f"- [{h[0].capitalize()}]({h[1]})" if h[1] else f"- {h[0].capitalize()}" for h in headlines])
+    else:
+        formatted.append("- None found")
+
+    return "\n".join(formatted)
+
+# -------------------------------
+# Main Daily Run
+# -------------------------------
 def run_adi_daily():
     base_dir = os.path.dirname(os.path.abspath(__file__))
     data_path = os.path.join(base_dir, "data")
@@ -160,7 +198,7 @@ def run_adi_daily():
     forecast = forecast_trend(df)
     historical_context = historical_comparison(scaled_adi)
 
-    # Summary for display
+    # Summary
     summary = format_summary(today, raw_adi, scaled_adi, shoe_level, shoe_status, whitehouse_actions, headlines)
 
     return summary, scaled_adi, shoe_level, shoe_status, forecast, historical_context
