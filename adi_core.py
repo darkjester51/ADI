@@ -143,4 +143,11 @@ def run_adi_daily():
     df = pd.concat([df_old, df_new]).drop_duplicates(subset=["Date"], keep="last")
     df.to_csv(log_file, index=False)
 
-    return scaled_adi, shoe_level, shoe_status, whitehouse_actions, headlines
+    # Forecast and historical context
+    forecast = forecast_trend(df)
+    historical_context = historical_comparison(scaled_adi)
+
+    # Summary for display
+    summary = format_summary(today, raw_adi, scaled_adi, shoe_level, shoe_status, whitehouse_actions, headlines)
+
+    return summary, scaled_adi, shoe_level, shoe_status, forecast, historical_context
