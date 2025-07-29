@@ -28,7 +28,9 @@ SEVERITY_MAP = {
     "tariff": ("economy", 3),
     "voter suppression": ("elections", 7),
     "court ruling overturns": ("rule_of_law", -5),
-    "rights restored": ("civil_rights", -6)
+    "rights restored": ("civil_rights", -6),
+    "ceasefire": ("foreign_policy", -2),
+    "peace": ("foreign_policy", -2)
 }
 
 DECAY_FACTOR = 0.95
@@ -39,22 +41,6 @@ HISTORICAL_BASELINES = {
     "Chile (1970-1973)": [15, 20, 28, 40, 60, 80],
     "Turkey (2013-2017)": [18, 22, 30, 45, 65, 78, 85]
 }
-
-# Historical events
-HISTORICAL_EVENTS = [
-    ("2001-09-11", 20, "9/11 Terror Attacks"),
-    ("2001-10-26", 30, "Patriot Act signed"),
-    ("2003-03-19", 32, "Iraq War begins"),
-    ("2008-09-15", 28, "2008 Financial crisis"),
-    ("2013-06-05", 33, "Snowden NSA revelations"),
-    ("2016-11-08", 35, "2016 Presidential Election"),
-    ("2020-03-15", 40, "COVID lockdowns & emergency powers"),
-    ("2020-06-01", 45, "George Floyd protests & civil unrest"),
-    ("2021-01-06", 55, "Capitol Riot & election disputes"),
-    ("2022-06-24", 50, "Roe v. Wade overturned"),
-    ("2023-08-01", 45, "Federal indictments and polarization spike"),
-    ("2024-11-05", 48, "2024 Presidential Election"),
-]
 
 # -------------------------------
 # Data Sources
@@ -89,12 +75,24 @@ def fetch_us_politics_news():
 # -------------------------------
 # Scoring & ADI Calculations
 # -------------------------------
-def score_events(events):
+def score_events(whitehouse_actions, headlines):
     scores = {cat: 0 for cat in CATEGORIES}
-    for event in [e[0].lower() for e in events]:
+
+    # Full weight for White House actions
+    for event in [a[0] for a in whitehouse_actions]:
+        event_lower = event.lower()
         for key, (cat, points) in SEVERITY_MAP.items():
-            if key in event:
-                scores[cat] = min(max(scores.get(cat, 0) + points, 0), 10)
+            if key in event_lower:
+                scores[cat] = min(max(scores[cat] + points, 0), 10)
+
+    # Reduced weight (5%) for headlines
+    for event in [h[0] for h in headlines]:
+        event_lower = event.lower()
+        for key, (cat, points) in SEVERITY_MAP.items():
+            if key in event_lower:
+                scaled_points = points * 0.05
+                scores[cat] = min(max(scores[cat] + scaled_points, 0), 10)
+
     return scores
 
 def calculate_adi(scores):
@@ -198,8 +196,7 @@ def run_adi_daily():
 
     whitehouse_actions = scrape_whitehouse_actions()
     headlines = fetch_us_politics_news()
-    events = whitehouse_actions + headlines
-    scores = score_events(events)
+    scores = score_events(whitehouse_actions, headlines)
     raw_adi = calculate_adi(scores)
     scaled_adi = scale_to_historical(raw_adi)
     shoe_level, shoe_status = get_shoe_level(scaled_adi)
