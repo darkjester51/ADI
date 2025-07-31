@@ -96,22 +96,23 @@ def log_adi_score(score):
 # Refresh Button
 if st.button("🔄 Refresh Now"):
     with st.spinner("Pulling most current data..."):
-        summary, adi_score, shoe_level, shoe_status, forecast, historical_context = run_adi_daily()
-        st.write(f"DEBUG: Raw ADI Score from run_adi_daily() = {adi_score}")
-        st.success(f"Current ADI Score: {adi_score} (Shoe Level {shoe_level} – {shoe_status})")
+        summary, scaled_adi, shoe_level, shoe_status, forecast, historical_context, raw_adi = run_adi_daily()
+        
+        st.write(f"DEBUG: Raw ADI Score = {raw_adi}")
+        st.success(f"Current ADI Score: {scaled_adi} (Shoe Level {shoe_level} – {shoe_status})")
+        
         shoe_meter(shoe_level)
         st.markdown(summary)
         st.info(forecast)
+
         st.subheader("Historical Context:")
         for line in historical_context:
             st.write("- " + line)
 
-        # Save to log
-        log_adi_score(adi_score)
+        log_adi_score(scaled_adi)  # Still logging the scaled score
 
-        # Display static historical chart
         st.subheader("📊 Historical Reference Chart")
-        plot_static_historical_chart(adi_score)
+        plot_static_historical_chart(scaled_adi)
 
 # U.S. ADI Trend Chart
 if os.path.exists(LOG_FILE):
