@@ -174,14 +174,12 @@ def score_events(whitehouse_actions, headlines):
     scores = {cat: 0 for cat in CATEGORIES}
     matched = []
 
-    # Full weight for White House actions
     for event in [e[0].lower() for e in whitehouse_actions]:
         for key, (cat, points) in SEVERITY_MAP.items():
             if key in event:
                 scores[cat] = min(max(scores[cat] + points, 0), 10)
                 matched.append(f"[WH] '{key}' matched '{event}' → +{points} to {cat}")
 
-    # Reduced weight (5%) for news headlines
     for event in [e[0].lower() for e in headlines]:
         for key, (cat, points) in SEVERITY_MAP.items():
             if key in event:
