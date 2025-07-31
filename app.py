@@ -97,6 +97,7 @@ def log_adi_score(score):
 if st.button("🔄 Refresh Now"):
     with st.spinner("Pulling most current data..."):
         summary, adi_score, shoe_level, shoe_status, forecast, historical_context = run_adi_daily()
+        st.write(f"DEBUG: Raw ADI Score from run_adi_daily() = {adi_score}")
         st.success(f"Current ADI Score: {adi_score} (Shoe Level {shoe_level} – {shoe_status})")
         shoe_meter(shoe_level)
         st.markdown(summary)
