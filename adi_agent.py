@@ -1,78 +1,83 @@
 import hashlib
 import json
 import os
-from datetime import datetime
-
-import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-# -------------------------------
-# AI Agent for ADI Reflex Checkpoint
-# -------------------------------
-class ADIAgent:
-    def __init__(self, cache_path="adi_event_cache.json"):
-        self.cache_path = cache_path
-        self._load_cache()
+# Reuse your original scoring logic
+from adi_core import CATEGORIES, SEVERITY_MAP
 
-    def _load_cache(self):
-        if os.path.exists(self.cache_path):
-            with open(self.cache_path, "r") as f:
-                self.cache = json.load(f)
-        else:
-            self.cache = {}
+CACHE_FILE = "adi_event_cache.json"
+SIMILARITY_THRESHOLD = 0.9  # Above this, assume no real change
 
-    def _save_cache(self):
-        with open(self.cache_path, "w") as f:
-            json.dump(self.cache, f, indent=2)
+def hash_events(events):
+    """Generate a hash from the content of events."""
+    concat = " ".join([title.lower() for title, _ in events])
+    return hashlib.sha256(concat.encode('utf-8')).hexdigest()
 
-    def _hash_events(self, events):
-        flat = " ".join([e[0].lower() for e in events])
-        return hashlib.sha256(flat.encode("utf-8")).hexdigest()
+def compute_similarity(events_a, events_b):
+    """Use TF-IDF cosine similarity to detect similarity between event sets."""
+    texts = [" ".join([t.lower() for t, _ in events_a]), " ".join([t.lower() for t, _ in events_b])]
+    tfidf = TfidfVectorizer().fit_transform(texts)
+    similarity = cosine_similarity(tfidf[0:1], tfidf[1:2])
+    return similarity[0][0]
 
-    def _get_event_text(self, events):
-        return " ".join([e[0] for e in events])
+def score_events(whitehouse_actions, headlines):
+    """Score events as before."""
+    scores = {cat: 0 for cat in CATEGORIES}
+    matched = []
 
-    def detect_meaningful_change(self, current_wh, current_news):
-        today = datetime.today().strftime("%Y-%m-%d")
-        cur_hash = self._hash_events(current_wh + current_news)
-        cur_text = self._get_event_text(current_wh + current_news)
+    for event in [e[0].lower() for e in whitehouse_actions]:
+        for key, (cat, points) in SEVERITY_MAP.items():
+            if key in event:
+                scores[cat] = min(max(scores[cat] + points, 0), 10)
+                matched.append(f"[WH] '{key}' matched '{event}' → +{points} to {cat}")
 
-        # Compare with last stored
-        if "last_hash" in self.cache and self.cache["last_hash"] == cur_hash:
-            print("🔁 No meaningful change – identical hash.")
-            return False
+    for event in [e[0].lower() for e in headlines]:
+        for key, (cat, points) in SEVERITY_MAP.items():
+            if key in event:
+                scaled_points = points * 0.05
+                scores[cat] = min(max(scores[cat] + scaled_points, 0), 10)
+                matched.append(f"[NEWS] '{key}' matched '{event}' → +{scaled_points:.2f} to {cat}")
 
-        if "last_text" in self.cache:
-            vec = TfidfVectorizer().fit_transform([self.cache["last_text"], cur_text])
-            similarity = cosine_similarity(vec[0:1], vec[1:2])[0][0]
-            print(f"🧠 Cosine similarity to last: {similarity:.3f}")
-            if similarity > 0.9:
-                print("⚖️ No meaningful change – high semantic similarity.")
-                return False
+    print("Matched Events:")
+    for m in matched:
+        print(m)
 
-        # Update cache
-        self.cache = {
-            "last_date": today,
-            "last_hash": cur_hash,
-            "last_text": cur_text
-        }
-        self._save_cache()
-        print("✅ Meaningful change detected.")
-        return True
+    return scores
 
-# -------------------------------
-# Example Usage
-# -------------------------------
-if __name__ == "__main__":
-    agent = ADIAgent()
+def run_adi_agent(whitehouse_actions, headlines):
+    """Run the smart agent logic before scoring."""
+    if not os.path.exists(CACHE_FILE):
+        cache = {}
+    else:
+        with open(CACHE_FILE, 'r') as f:
+            cache = json.load(f)
 
-    # Dummy test events (replace with live scraped data)
-    yesterday_wh = [("President signs executive order on AI", "")]
-    yesterday_news = [("Congress debates border security", "")]
+    # Build new hashes
+    wh_hash = hash_events(whitehouse_actions)
+    news_hash = hash_events(headlines)
 
-    today_wh = [("President signs executive order on AI", "")]
-    today_news = [("Congress debates border security and tech", "")]
+    wh_sim = 0.0
+    news_sim = 0.0
 
-    change = agent.detect_meaningful_change(today_wh, today_news)
-    print("Should recalculate ADI:", change)
+    if "wh_last" in cache and "news_last" in cache:
+        wh_sim = compute_similarity(whitehouse_actions, cache["wh_last"])
+        news_sim = compute_similarity(headlines, cache["news_last"])
+
+    if wh_sim > SIMILARITY_THRESHOLD and news_sim > SIMILARITY_THRESHOLD:
+        print(f"No significant change in content (WH sim: {wh_sim:.2f}, News sim: {news_sim:.2f}) — reusing last score.")
+        return cache.get("last_score", {cat: 0 for cat in CATEGORIES})
+
+    # Compute new score
+    scores = score_events(whitehouse_actions, headlines)
+
+    # Save state
+    cache["wh_last"] = whitehouse_actions
+    cache["news_last"] = headlines
+    cache["last_score"] = scores
+
+    with open(CACHE_FILE, 'w') as f:
+        json.dump(cache, f, indent=2)
+
+    return scores
