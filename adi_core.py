@@ -5,7 +5,6 @@ import pandas as pd
 import os
 import numpy as np
 from bs4 import BeautifulSoup
-from adi_agent import run_adi_agent
 
 CATEGORIES = {
     "judicial": 0.15,
@@ -223,7 +222,7 @@ def run_adi_daily():
 
     whitehouse_actions = scrape_whitehouse_actions()
     headlines = fetch_us_politics_news()
-    scores = run_adi_agent(whitehouse_actions, headlines)
+    scores = score_events(whitehouse_actions, headlines)
     delta = calculate_adi_delta(scores)
     new_score = round(last_score + delta, 2)
     level, status = get_shoe_level(new_score)
