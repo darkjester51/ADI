@@ -172,12 +172,14 @@ def fetch_us_politics_news():
 # -------------------------------
 def score_events(whitehouse_actions, headlines):
     scores = {cat: 0 for cat in CATEGORIES}
+    matched = []
 
-    # Full weight for executive actions
+    # Full weight for White House actions
     for event in [e[0].lower() for e in whitehouse_actions]:
         for key, (cat, points) in SEVERITY_MAP.items():
             if key in event:
                 scores[cat] = min(max(scores[cat] + points, 0), 10)
+                matched.append(f"[WH] '{key}' matched '{event}' → +{points} to {cat}")
 
     # Reduced weight (5%) for news headlines
     for event in [e[0].lower() for e in headlines]:
@@ -185,9 +187,14 @@ def score_events(whitehouse_actions, headlines):
             if key in event:
                 scaled_points = points * 0.05
                 scores[cat] = min(max(scores[cat] + scaled_points, 0), 10)
+                matched.append(f"[NEWS] '{key}' matched '{event}' → +{scaled_points:.2f} to {cat}")
+
+    print("Matched Events:")
+    for m in matched:
+        print(m)
 
     return scores
-
+    
 def calculate_adi(scores):
     raw_score = sum(scores[cat] * 10 * CATEGORIES[cat] for cat in CATEGORIES)
     return round(raw_score, 2)
