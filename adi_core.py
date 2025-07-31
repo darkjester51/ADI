@@ -193,13 +193,11 @@ def run_adi_daily():
     os.makedirs(data_path, exist_ok=True)
     log_file = os.path.join(data_path, "adi_log.csv")
 
-    # Seed 30-day U.S. ADI log if empty
     seed_us_adi_log(log_file)
 
     whitehouse_actions = scrape_whitehouse_actions()
     headlines = fetch_us_politics_news()
-    events = whitehouse_actions + headlines
-    scores = score_events(events)
+    scores = score_events(whitehouse_actions, headlines)
     raw_adi = calculate_adi(scores)
     scaled_adi = scale_to_historical(raw_adi)
     shoe_level, shoe_status = get_shoe_level(scaled_adi)
@@ -216,4 +214,4 @@ def run_adi_daily():
     historical_context = historical_comparison(scaled_adi)
     summary = format_summary(today, raw_adi, scaled_adi, shoe_level, shoe_status, whitehouse_actions, headlines)
 
-    return summary, scaled_adi, shoe_level, shoe_status, forecast, historical_context
+    return summary, scaled_adi, shoe_level, shoe_status, forecast, historical_context, raw_adi
