@@ -80,7 +80,6 @@ def fetch_us_politics_news():
         feed = feedparser.parse("https://feeds.reuters.com/Reuters/PoliticsNews")
         if feed.entries:
             return [(entry.title, entry.link) for entry in feed.entries[:10]]
-        # Fallback to BBC U.S. News
         feed = feedparser.parse("http://feeds.bbci.co.uk/news/world/us_and_canada/rss.xml")
         return [(entry.title, entry.link) for entry in feed.entries[:10]]
     except Exception:
@@ -89,12 +88,22 @@ def fetch_us_politics_news():
 # -------------------------------
 # Scoring & ADI Calculations
 # -------------------------------
-def score_events(events):
+def score_events(whitehouse_actions, headlines):
     scores = {cat: 0 for cat in CATEGORIES}
-    for event in [e[0].lower() for e in events]:
+
+    # Full weight for executive actions
+    for event in [e[0].lower() for e in whitehouse_actions]:
         for key, (cat, points) in SEVERITY_MAP.items():
             if key in event:
-                scores[cat] = min(max(scores.get(cat, 0) + points, 0), 10)
+                scores[cat] = min(max(scores[cat] + points, 0), 10)
+
+    # Reduced weight (5%) for news headlines
+    for event in [e[0].lower() for e in headlines]:
+        for key, (cat, points) in SEVERITY_MAP.items():
+            if key in event:
+                scaled_points = points * 0.05
+                scores[cat] = min(max(scores[cat] + scaled_points, 0), 10)
+
     return scores
 
 def calculate_adi(scores):
@@ -166,16 +175,15 @@ def format_summary(date, raw_adi, scaled_adi, shoe_level, shoe_status, actions, 
 # U.S. ADI 30-Day Seeding
 # -------------------------------
 def seed_us_adi_log(log_file):
-    """Create a 30-day backfilled ADI log for the U.S."""
     if os.path.exists(log_file):
-        return  # Do nothing if file already exists
+        return
 
     data = []
     today = datetime.date.today()
-    base_score = 55.0  # Starting ADI
+    base_score = 55.0
     for i in range(30):
         date = today - datetime.timedelta(days=29 - i)
-        score = base_score + np.sin(i / 5) * 3  # Add small variation
+        score = base_score + np.sin(i / 5) * 3
         level, status = get_shoe_level(score)
         data.append([date.strftime("%Y-%m-%d"), round(score, 2), level, status])
 
@@ -193,13 +201,11 @@ def run_adi_daily():
     os.makedirs(data_path, exist_ok=True)
     log_file = os.path.join(data_path, "adi_log.csv")
 
-    # Seed 30-day U.S. ADI log if empty
     seed_us_adi_log(log_file)
 
     whitehouse_actions = scrape_whitehouse_actions()
     headlines = fetch_us_politics_news()
-    events = whitehouse_actions + headlines
-    scores = score_events(events)
+    scores = score_events(whitehouse_actions, headlines)
     raw_adi = calculate_adi(scores)
     scaled_adi = scale_to_historical(raw_adi)
     shoe_level, shoe_status = get_shoe_level(scaled_adi)
