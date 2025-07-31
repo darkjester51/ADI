@@ -89,12 +89,22 @@ def fetch_us_politics_news():
 # -------------------------------
 # Scoring & ADI Calculations
 # -------------------------------
-def score_events(events):
+def score_events(whitehouse_actions, headlines):
     scores = {cat: 0 for cat in CATEGORIES}
-    for event in [e[0].lower() for e in events]:
+
+    # Full weight for executive actions
+    for event in [e[0].lower() for e in whitehouse_actions]:
         for key, (cat, points) in SEVERITY_MAP.items():
             if key in event:
-                scores[cat] = min(max(scores.get(cat, 0) + points, 0), 10)
+                scores[cat] = min(max(scores[cat] + points, 0), 10)
+
+    # Reduced weight (5%) for news headlines
+    for event in [e[0].lower() for e in headlines]:
+        for key, (cat, points) in SEVERITY_MAP.items():
+            if key in event:
+                scaled_points = points * 0.05
+                scores[cat] = min(max(scores[cat] + scaled_points, 0), 10)
+
     return scores
 
 def calculate_adi(scores):
