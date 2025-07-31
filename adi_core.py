@@ -21,14 +21,95 @@ CATEGORIES = {
 
 # Severity mapping
 SEVERITY_MAP = {
-    "ending crime and disorder": ("civil_rights", 10),
-    "export of the american ai technology stack": ("foreign_policy", 5),
-    "captive nations week": ("polarization", 4),
+    # ⚖️ Civil Rights / Civil Liberties
     "ban": ("civil_rights", 4),
-    "tariff": ("economy", 3),
-    "voter suppression": ("elections", 7),
+    "curfew": ("civil_rights", 5),
+    "martial law": ("civil_rights", 8),
+    "emergency declaration": ("civil_rights", 6),
+    "suspension of rights": ("civil_rights", 8),
+    "voter suppression": ("civil_rights", 7),
+    "mass surveillance": ("civil_rights", 5),
+    "protest ban": ("civil_rights", 6),
+    "ending crime and disorder": ("civil_rights", 10),
+    "rights restored": ("civil_rights", -6),
+
+    # 🧑‍⚖️ Rule of Law
     "court ruling overturns": ("rule_of_law", -5),
-    "rights restored": ("civil_rights", -6)
+    "indictment": ("rule_of_law", 5),
+    "conviction": ("rule_of_law", 4),
+    "arrest warrant": ("rule_of_law", 5),
+    "legal immunity": ("rule_of_law", 4),
+    "rule of law": ("rule_of_law", 5),
+    "refusal to comply": ("rule_of_law", 6),
+    "military tribunal": ("rule_of_law", 7),
+
+    # 🏛️ Civil Service & Governance
+    "executive order": ("civil_service", 3),
+    "nominations sent": ("civil_service", 2),
+    "appointed": ("civil_service", 2),
+    "confirmed by senate": ("civil_service", -2),
+    "presidential memorandum": ("civil_service", 3),
+    "agency directive": ("civil_service", 2),
+    "bureaucratic overhaul": ("civil_service", 4),
+
+    # 📺 Media & Information
+    "media censorship": ("media", 6),
+    "social media ban": ("media", 5),
+    "disinformation law": ("media", 4),
+    "press credentials revoked": ("media", 6),
+    "broadcast license revoked": ("media", 7),
+
+    # ⚖️ Judicial
+    "supreme court": ("judicial", 4),
+    "federal court": ("judicial", 3),
+    "judicial review": ("judicial", 4),
+    "court packing": ("judicial", 7),
+
+    # ⚖️ Elections
+    "election security": ("elections", 3),
+    "voter id law": ("elections", 3),
+    "gerrymandering": ("elections", 4),
+    "vote recount": ("elections", 3),
+    "electoral reform": ("elections", 2),
+    "polling access limited": ("elections", 5),
+
+    # 🌍 Foreign Policy
+    "tariff": ("economy", 3),
+    "sanctions": ("foreign_policy", 5),
+    "export controls": ("foreign_policy", 4),
+    "foreign interference": ("foreign_policy", 6),
+    "ai export": ("foreign_policy", 4),
+    "expulsion of diplomats": ("foreign_policy", 5),
+    "military aid": ("foreign_policy", 4),
+    "nuclear weapons": ("foreign_policy", 7),
+    "global conflict": ("foreign_policy", 6),
+    "export of the american ai technology stack": ("foreign_policy", 5),
+
+    # 📉 Economy
+    "economic crisis": ("economy", 5),
+    "inflation": ("economy", 4),
+    "job losses": ("economy", 4),
+    "recession": ("economy", 5),
+    "stimulus": ("economy", -3),
+    "imports": ("economy", 3),
+    "duty-free": ("economy", 4),
+    "trade restriction": ("economy", 5),
+    "adjusting imports": ("economy", 3),
+
+    # 🧨 Polarization
+    "captive nations week": ("polarization", 4),
+    "division": ("polarization", 3),
+    "extremism": ("polarization", 4),
+    "hate speech": ("polarization", 3),
+    "civil unrest": ("polarization", 5),
+    "armed protest": ("polarization", 6),
+    "militia": ("polarization", 5),
+
+    # Positive Counterweights
+    "rights expanded": ("civil_rights", -5),
+    "judicial independence": ("rule_of_law", -5),
+    "increased transparency": ("civil_service", -3),
+    "anti-corruption effort": ("rule_of_law", -4),
 }
 
 DECAY_FACTOR = 0.95
